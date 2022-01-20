@@ -1,0 +1,192 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Teasers for Anomaly Detection and Localisation in Medical Image Analysis (Tue, Jun 08 2021)</title>
+<style type="text/css">
+
+body {
+  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1;
+  color: #222222;
+}
+</style>
+   <!-- Bootstrap  -->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+   <!-- jQuery -->
+   <script
+			  src="https://code.jquery.com/jquery-3.6.0.min.js"
+			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+			  crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<p>
+<div style="padding:15px;"><img img style="border-radius: 5%;" src="https://teasers.vidd.ai/images/teasers_logo_inverted.jpg" width="200px">
+Hallo from <a href="https://teasers.vidd.ai/?playshared_21">Teasers</a>.
+<br>We auto-generate bite-sized topic content from your video, without you having to create separate video clips.
+<br>You can now promote the topics to social media in one click.
+<br>This discussion thread was extracted from &rarr; Anomaly Detection and Localisation in Medical Image Analysis (Tue, Jun 08 2021).
+The full recap is <a href="https://teasers.vidd.ai/p/d/krp_8q7qFH0.html">here.</a>
+<br>
+<hr>
+</div>
+<div style="padding: 5vh 10vw 5vh 5vw;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;thread: Solve anomaly detection<br>
+transcript:<br>
+<div id="transcript_lines">
+</div>
+
+<br><br><br>
+
+</div>
+
+<script>
+   function getUrlVars() {
+         var vars = {};
+         var this_href = window.location.href;
+         if (this_href.slice(-1) == '#') {
+            this_href = this_href.slice(0, -1);
+         }
+         var parts = this_href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+         vars[key] = value;
+         });
+         return vars;
+   }
+
+
+   function composeTranscript() {
+
+      // populate transcript
+      var transcript_line_template= `
+         <img src="{IMG_URL}" width="40" height="40" style="border-radius:25%"> &emsp;{TRANSCRIPT_LINE_TEXT}  [ <a id="{SHOW_NOTES}" href="#"> ▶️  play </a> | <a href="{LI_LINK}">share to LinkedIn</a> | <a href="{TWITTER_LINK}"> Twitter</a> | <a href="{SLACK_LINK}"> Slack</a> ]
+         <div id="{NOTES_SEGMENT_DIV_ID}" class="row" style="display:none;padding-top:20px">
+            <div class="col-md-8 offset-md-2">
+               <video id="video_{SEGMENT_ID}" width="640" height="360" src="" title="Segment {SEGMENT_ID}" style="display:none" controls></video>
+               <iframe id="yt_video_{SEGMENT_ID}" width="640" height="360" src="" title="Segment {SEGMENT_ID}" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none"></iframe>
+            </div>
+         </div>
+      `;
+
+      var indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+      let html = '';
+      let related_header_printed = 0;
+      for (let i = 0; i < thread_transcripts.length; i++) {
+         //clean up text
+         thread_transcripts[i] = thread_transcripts[i];
+
+         // add a header for related segments
+         if (i > 0) {
+            if (! related_header_printed) {
+               html += '<br><strong>Related</strong><br><br>';
+               related_header_printed = 1;
+            }
+         }
+
+         s = transcript_line_template;
+         let img_url = 'https://clips.vidd.ai/' + user + '/output/' + user + '/' + fn_ext + '/lall/crop/' + String(parseInt(thread_ids[i])).padStart(5, '0') + '.jpg';
+         s = s.replace('{IMG_URL}', img_url);
+         s = s.replace('{TRANSCRIPT_LINE_TEXT}', thread_transcripts[i]);
+         s = s.replace('{NOTES_SEGMENT_DIV_ID}', 'notes_' + thread_ids[i]);
+//HERE
+         // video link
+         if (segments_start_secs[i].includes('youtube')) {
+            video_links[ 'yt_video_' + thread_ids[i] ] = segments_start_secs[i];
+         } else {
+            video_links[ 'video_' + thread_ids[i] ] = segments_start_secs[i];
+         }
+
+
+         // slack link
+         let slack_link = 'https://neo.vidd.ai/p/to_slack.html?u=' + user + '&fn=' + fn_ext + '&seg_index=' + thread_ids[i];
+         s = s.replace('{SLACK_LINK}', slack_link);
+
+         // linkedin link
+         let li_link = 'https://neo.vidd.ai/p/to_li.html?u=' + user + '&fn=' + fn_ext + '&seg_index=' + thread_ids[i];
+         s = s.replace('{LI_LINK}', li_link);
+
+         // twitter link
+         let twitter_link = 'https://neo.vidd.ai/p/to_twitter.html?u=' + user + '&fn=' + fn_ext + '&seg_index=' + thread_ids[i];
+         s = s.replace('{TWITTER_LINK}', twitter_link);
+
+
+         // notes
+         show_notes[ 'show_notes_' + thread_ids[i] ] = 'notes_' + thread_ids[i];
+         s = s.replace('{SHOW_NOTES}', 'show_notes_' + thread_ids[i]);
+         s = s.replace(/{SEGMENT_ID}/g, thread_ids[i]);
+         html += indent + s + '<br><br>';
+      }
+      // highlight any text sent in
+      if (text_in) {
+         const regex =  new RegExp(text_in,'g');
+         html = html.replace(regex, '<span style="background-color: yellow">'+text_in+'</span>');
+      }
+      $("#transcript_lines").html(html);
+   }
+
+   function addListeners() {
+      document.querySelector('body').addEventListener( 'click', function ( event ) {
+      if( event.target.id in show_notes) {
+         event.preventDefault();
+         // scroll into view
+         let thread_id_index = thread_ids.indexOf(Number(current_seg_id));
+
+         // hide current
+         $('#' + 'notes_' + current_seg_id).hide();
+
+         // show new
+         $('#' + show_notes[event.target.id]).show();
+         // grab segment_id
+         let res = event.target.id.split('_');
+         current_seg_id = res.pop();
+
+         // set video src
+         if (segments_start_secs[thread_id_index].includes('youtube')) {
+            document.getElementById('yt_video_' + current_seg_id).src = video_links['yt_video_' + current_seg_id];
+            document.getElementById('yt_video_' + current_seg_id).style.display = 'block';
+         } else {
+            document.getElementById('video_' + current_seg_id).src = video_links['video_' + current_seg_id];
+            document.getElementById('video_' + current_seg_id).style.display = 'block';
+         }
+
+      }
+      });
+   }
+</script>
+<script>
+   var current_user_name = 'Guest';
+</script>
+
+<script>
+   // globals
+   var video_links = [], show_notes = [], this_thread_id = 21, current_seg_id = 21, mde;
+   var user = 'a28ae61a-8733-4e6c-98c7-6e5b05444c36';
+   var fn_ext = 'krp_8q7qFH0.mp4';
+   var fn = fn_ext.split('.')[0];
+   var segments_start_secs = ["https:\/\/www.youtube.com\/embed\/krp_8q7qFH0?start=383","https:\/\/www.youtube.com\/embed\/krp_8q7qFH0?start=469","https:\/\/www.youtube.com\/embed\/krp_8q7qFH0?start=1013"];
+   var thread_ids = [21,22,44];
+   var thread_transcripts = ["you know, during, you know the detection of anomaly, because sometimes you know an image like this may really look like an anomaly, much more than an image that has a small polyp like this, right, and if you don't have this in your training or somehow reject these images, you will have a lot of trouble, a lot of false detections, while you know you have a polyp here that doesn't look exactly like that, but you know, in the same way it looks very normal, right, compared to what a normal image should look like. so there are many ways to solve anomaly detection and i will talk about two ways, which are the, the, the ways that i usually used to solve the problems that we'll talk next. so one particular technique and that's been used up until today and it was proposed in 2001, it's the one class classifiers. in this problem. what you try to do is you try to, you know, take the normal samples that you see here and you try to learn two things, one is you try to minimize the radius of the distribution of the sample. so imagine you have a, a sphere that would, you know, be around the samples, and then you try to minimize the radius of this sphere such that the samples will get closer and closer together, and at the same time you also want to learn the primers of these features.","so you know, it's like two ways to put this- all the normal features together in a particular region of the feature space that is centered at this c center, and then during the test what you expect to have is that, so you know, and normally we'll just sit very far, far from the normal samples that you see here, and then the classifier, which is basically, if it's within some radius of this center, we'll just say, oh well, this is just sitting too far away from the normal samples, and then you're able to detect the anomaly. so it's like a classifier that detects anomalies. however, you know, the learning, the end-to-end learning of feature in the classifier is quite challenging in this setup.","to do just a pre-training using, only normal images, and then we take this and we train both an anomaly detection and a normal anomaly detection and normal localization, as you can see here at the bottom. so we can do both. and so the detection of the polarization, are based on systems being that have been proposed before, like igd and fn again."];
+   var text_in = '';
+
+   // override seg_index if passed in
+   if (getUrlVars()['seg_index']) {
+      current_seg_id = getUrlVars()['seg_index'];
+   }
+
+   // override text_in if passed in
+   if (getUrlVars()['text_in']) {
+      text_in = getUrlVars()['text_in'];
+      text_in = decodeURIComponent(text_in);
+   }
+
+   $(document).ready(function(){
+      composeTranscript();
+      addListeners();
+      document.getElementById('show_notes_' + current_seg_id).click();
+   });
+</script>
+</body>
+</html>
